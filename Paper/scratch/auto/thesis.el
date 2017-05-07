@@ -5,16 +5,15 @@
                      '(("book" "twoside" "doublespace" "onecolumn" "11pt" "a4paper")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("StyFiles/anuthesis" "palatino") ("appendix" "toc" "page") ("StyFiles/natbib" "sort" "numbers") ("amsmath" "cmex10") ("caption" "font=small" "labelfont=bf") ("subfig" "font=footnotesize")))
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (TeX-run-style-hooks
     "latex2e"
-    "RelatedWorks/Background"
     "RelatedWorks/RelatedWorks"
     "Methodology/Methodology"
     "book"

@@ -19,6 +19,7 @@
     "komodakis2014framework"
     "li2013exploring"
     "achanta2012slic"
+    "kohli2007p3"
     "bishop:2006:PRML"))
  :bibtex)
 

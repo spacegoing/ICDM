@@ -5,7 +5,7 @@
 \chapter{Related Work and Background}
 \label{cha:RelatedWorks}
 
-\section{Related Work}
+\section{MRFs and Energy Function}
 \subsection{Markov Random Fields}
 \label{sec:MRF}
 \emph{Markov Random Fields} are also known as \emph{undirected
@@ -77,180 +77,159 @@ $y$~\cite{Szummer:ECCV08}:
 \text{,~} y\in \Y
 \end{align}
 
-We have introduced three main research topics of MRFs: definition
-of \emph{energy function} (potential functions), \emph{inference}
-problem (MAP or energy minimization) and \emph{learning} problem.
+So far we have introduced three main research topics of MRFs:
+definition of \emph{energy function} (potential functions),
+\emph{inference} problem (MAP or energy minimization) and
+\emph{learning} problem.
+
 As for energy function, our work focus on a generalization of
 k-means clustering known as Gaussian Mixture Models to
 incorporate information about the covariance structure of the
-data as well as the centers of the latent Gaussians. It has been
-raising much interest due to its capability of encoding complex
-constraints over large subsets of pixels in an image.
+data as well as the centers of the latent Gaussians. The
+grabcut~\cite{Rother:SIGGRAPH04} algorithm is used to train GMMs
+and the final results are used to construct the unary terms. For
+pairwise terms, we use the Potts model introduced by
+\citename{Kohli:CVPR07} to encode pairwise consistency. The
+\emph{inference} problem is solved by using a
+graph-cut~\cite{Boykov:ICCV99, Boykov:PAMI04} algorithm and the
+max margin framework~\cite{tsochantaridis2005large} has been
+addressed to learn parameters of the energy function.
 
-\citename{kohli2009robust} proposed a method to represent a class
-of higher order potentials with lower (upper) linear envelope
-potentials. By introducing auxiliary
-variables~\cite{Kohli:CVPR10}, they reduced the linear
-representation to a pairwise form and proposed an approximate
-algorithm with standard linear programming methods. However, they
-only show an exact inference algorithm on at most three terms.
-Following their routine, \citename{gouldlearning} extended their
-method to a weighted lower linear envelope with arbitrary many
-terms which can be solved with an efficient algorithm. They
-showed the energy function with auxiliary variables is submodular
-by transforming it into a quadratic pseudo-Boolean
-form~\cite{Boros:MATH02} and how
-\emph{graph-cuts}~\cite{Hammer:1965, Boykov:ICCV01,
-  Freedman:CVPR05} like algorithm can be applied to do exact
-\emph{inference}.
-
-\citename{gouldlearning} solved \emph{learning} problem of lower
-linear envelope under the max margin
-framework~\cite{tsochantaridis2005large}. In their work they
-pointed out the potential relationship between their auxiliary
-representation and latent SVM~\cite{yu2009learning}. Our work is
-closely based on their research. We continue to use the higher
-order energy function and inference algorithm developed in their
-previous work~\cite{Gould:ICML2011} and extend their max margin
-learning algorithm to include latent variables. The learning
-algorithm we use is an extension of max margin framework which is
-known as ``latent structural SVM''~\cite{yu2009learning}.
-
-% \subsection{Latent Structural SVMs}
-% \label{sec:latent-struct-svms}
-
-% The max-margin
-% framework~\cite{Taskar:ICML05,tsochantaridis2005large} is a
-% principled approach to learn the weights of pairwise MRFs.
-% \citename{Szummer:ECCV08} adapted this framework to optimize
-% parameters of pairwise MRFs inferred by graph-cuts method. In our
-% previous work \citename{gouldlearning} extended this framework
-% with additional linear constraints which enforces concavity on
-% weights thus can be used for learning lower linear envelope
-% potentials.
-
-% In this section we introduce \emph{latent structural
-%   SVM}~\cite{yu2009learning} which extends the max-margin
-% framework by encoding latent information in feature vector. In
-% section~\ref{sec:learning} we will show how this framework can be
-% adapted to learn parameters for higher order energy function with
-% latent variables.
-
-% Given an a linear combination of features vector $\phi(\bx ,\by)
-% \in \reals^m$ and weights $\btheta \in \reals^m$, and a set of
-% $n$ training examples $\{\by_i\}_{i=1}^n$ max-margin framework
-% can be used to solve optimized solution $\btheta^*$. To include
-% unobserved information in the model, Yu\cite{yu2009learning}
-% extended the joint feature function\cite{tsochantaridis2005large}
-% $\phi(\mathbf{x},\mathbf{y}) $ with a latent variable
-% $\mathbf{h}\in \mathcal{H}$ to
-% $\phi(\mathbf{x},\mathbf{y},\mathbf{h}) $. So the inference
-% problem becomes
-% \begin{align}
-%   \label{eq:latent_ssvm_linearcomb}
-%   f_\theta(x) = \argmax_{(\mathbf{y} \times \mathbf{h}) \in \mathcal{Y}
-%   \times \mathcal{H}} \theta\cdot\phi(\mathbf{x},\mathbf{y},\mathbf{h})
-% \end{align}
-
-% Accordingly, the loss function can be extended as
-
-% $$
-% \Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
-% $$
-
-% \noindent where
-
-% \begin{align}
-%   \label{eq:latentssvm_full_inf}
-%  (\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))=\argmax_{(\mathbf{y}
-%   \times \mathbf{h}) \in \mathcal{Y} \times \mathcal{H}}
-% \theta\cdot\phi(\mathbf{x}_i,\mathbf{y_i},\mathbf{h})
-% \end{align}
-
-% \begin{align}
-%   \label{eq:latentssvm_latent_inf}
-%   \mathbf{h}^*_i(\theta) = \argmax_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-%   \phi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
-% \end{align}
-
-% The loss function under this formulation measures difference
-% between the inferred result pair $(\mathbf{\hat{y}}_i(\theta),
-% \mathbf{\hat{h}}_i(\theta))$ and the pair $(\mathbf{y}_i(\theta),
-% \mathbf{h}_i^*(\theta))$ which best explains the training data.
-% However, under this formulation the ``loss augmented inference''
-% used in structural SVMs\cite{tsochantaridis2005large} to remove
-% the complexity cannot be performed due to the dependence of loss
-% function $\Delta$ on hidden variables $\mathbf{h}^*_i(\theta)$.
-% \citename{yu2009learning} argued that in real world applications
-% hidden variables are usually intermediate results and are not
-% required as an output\cite{yu2009learning}. Therefore, the loss
-% function can only focus on the inferenced hidden variables
-% $\mathbf{\hat{h}}_i(\theta)$ which leads to:
-
-% $$
-% \Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
-% =
-% \Delta(\mathbf{y}_i,\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))
-% $$
-
-% Thus the upper bound used in standard structural
-% SVMs\cite{tsochantaridis2005large} can be extended to:
-
-% \begin{align}
-%   \Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
-%   &\leq \bigg(\max_{(\mathbf{\hat{y}} \times \mathbf{\hat{h}}) \in
-%     \mathcal{Y} \times \mathcal{H}}
-%     [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
-%     \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\bigg)\\
-%   &-\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-%     \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
-% \end{align}
-
-% Hence the optimization problem for Structural SVMs with latent
-% variables becomes
-
-% \begin{align}
-% \label{eq:latent_ssvm_object}
-%   \min_\theta\bigg(\frac{1}{2}\|\theta\|^2+
-%   C\sum_{i=1}^{n}\big(\max_{(\mathbf{\hat{y}} \times
-%   \mathbf{\hat{h}}) \in \mathcal{Y} \times \mathcal{H}}
-%   [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
-%   \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\big)\bigg)\\
-%   -C\sum_{i=1}^{n}\big(\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-%   \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})\big)\nonumber
-% \end{align}
-
-% \noindent which is a difference of two convex functions. Problem
-% of this formulation can be solved using the Concave-Convex
-% Procedure (CCCP)\cite{yuille2002concave} which is guaranteed to
-% converge to a local minimum. \citename{yu2009learning} proposed a
-% two stages algorithm. In the first step the latent variable
-% $\bh_i^*$ which best explains training pair $(\bx_i, \by_i)$ is
-% found by solving equation~\eqref{eq:latentssvm_latent_inf}. This
-% step is also called the ``latent variable completion'' problem.
-% In the second step $\bh_i^*$ is used as completely observed to
-% substitute $\bh$ in equation~\eqref{eq:latent_ssvm_object}.
-% Therefore, solving equation~\eqref{eq:latent_ssvm_object} is
-% equivalent to solve the standard structural SVM problem.
-
-% Auxiliary variables was introduced to help representing lower
-% linear envelope potentials in an energy-minimization
-% setting~\cite{Kohli:CVPR10}. In order to adapt the energy
-% function to max margin framework, \citename{Gould:ICML2011}
-% approximated the energy function using equally spaced
-% break-points thus removed those auxiliary variables. In this
-% thesis we try to optimize the energy function exactly by
-% introducing auxiliary variables back into the feature vector and
-% solving the learning problem using the latent structural SVM
-% framework. We will present this in detail in
-% section~\ref{sec:learning}.
-
-% \input RelatedWorks/Background.tex
+\subsection{Construction of stocks relationship graph}
+\label{sec:con_stock_graph}
 
 
-% \clearpage
-% \cleardoublepage
 
+\subsection{Configuration of Energy Function}
+\label{sec:grabcut}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=1\linewidth]{RelatedWorks/figures/grabcut_task.png}
+  \caption{\label{fig:grabcut_example} Picture on the left is
+    the original picture. Picture
+    on the middle is a user defined mask. The task is to extract
+    foreground pixels within that rectangle. On the right is the
+    ground truth foreground.}
+\end{figure}
+
+In this section we described the configuration of our energy
+function. We mainly introduce the \emph{GrabCut} algorithm which
+we used to generate our unary terms. The \emph{Potts model} is
+used as our pairwise terms. Thus our energy function can be
+written as:
+\begin{align}
+  \label{eq:energyfunction_UP}
+  E(\by;\bw)=\theta^U\sum_{i\in \N}{\bw_i^U\phi^U(\by_i)}+
+  \theta^P\sum_{(i,j)\in \E}{\bw_{ij}^P\phi^P(\by_i,\by_j)}
+\end{align}
+\noindent where $\theta^U$ and $\theta^P$ are parameters to be
+optimized.
+
+The \emph{GrabCut} algorithm was proposed
+by~\citename{Rother:SIGGRAPH04} in order to solve background
+foreground segmentation problem (see
+figure~\ref{fig:grabcut_example}). They first defined MRFs over
+an labeled image and then use
+\emph{graph-cuts}~\cite{Boykov:ICCV01} method to do the
+inference. In this section we use two of their contributions:
+estimating color distribution (foreground and background) using
+\emph{Gaussian Mixture Models} (GMMs) and an \emph{EM} like
+two-step algorithm to train their model.
+
+Suppose there are $N$ pixels in an image. In order to construct
+MRFs, they first defined an energy
+function~\eqref{eq:energyfunction_UPH} with unary and pairwise
+terms:
+
+\begin{align}
+  \label{eq:grabcut_energy}
+  G(\alpha, \bk, \btheta, \bz) = 
+  \sum_{i\in \N}{\psi^U(\alpha_i, \bk_i, \btheta, \bz_i)}+
+  \sum_{(i,j)\in \E}{\psi^P(\alpha_i,\bz_i)}
+\end{align}
+where $i$ is the index of pixels, $\alpha \in {0,1}$ is the label
+for pixel $i$. $0$ is for the background and $1$ is for the
+foreground. $\bz$ denotes the pixel vector in RGB color space.
+$\bk$ and $\btheta$ are all parameters vectors and will be
+explained in the next paragraph. 
+
+\begin{algorithm}[tb]
+  \begin{algorithmic}[1]
+    \REPEAT
+    \STATE{\emph{Assign GMM components} to stocks: \\
+      $\bk_i^*=\argmin_{\bk_i}\psi^U(\alpha_i, \bk_i, \btheta,
+      \bz_i)$}
+    \STATE{\emph{Learn GMM parameters} from data z:\\
+      $\btheta=\argmin_{\btheta}\sum_{i\in \N}{\psi^U(\alpha_i, \bk_i, \btheta, \bz_i)}$}
+    \STATE{\emph{Estimate segmentation}: graph-cuts inference:\\
+      $\min_{\alpha}\min_{\bk}E(\alpha, \bk, \btheta, \bz)$}
+    \UNTIL{convergence}
+  \end{algorithmic}
+  \caption{\label{alg:grabcut} GrabCut training algorithm}
+\end{algorithm}
+
+In our configuration, we use the graph described
+in~\ref{sec:con_stock_graph} in replacement of the image. Each
+node in the graph represents a stock instead of pixel and the
+edge between stocks represents their pairwise relationship. The
+label $\alpha \in {0,1}$ equals $1$ when the stock price has a
+positive movement, and vice versa. $\bz$ denotes the stock's
+market price vector instead of pixel's RGB value. Other
+parameters are the same with their configurations.
+
+The \emph{Gaussian Mixture Models} (GMMs) with $K$ components
+(typically $K=5$) is used for generating unary terms. Two GMMs,
+one for positive movement and one for negative movement, are
+jointly trained by the algorithm.
+$\bk={\bk_1,\dots,\bk_i,\dots,\bk_N}$ with $\bk_i\in 1,\dots,K$
+assigns each stock (node) $i$ to a unique GMMs component. The
+component is either belonging to positive movement's GMMs or
+negative movement's GMMs, which is depended on the label
+$\alpha_i\in {0,1}$. $\btheta$ is the parameter vector which
+contains parameters of standard GMMs plus \emph{mixture weighting
+  coefficients}~\cite{Rother:SIGGRAPH04}.
+
+The pairwise function $\psi^P$ in \eqref{eq:grabcut_energy} is
+defined as a smoothness indicator which measures both feature
+vector (stock price vector) and spatial distances (graph
+distances) simultaneously. It is used to encourage coherence of
+similar pixel pairs. This energy function was later used to
+construct an \emph{st min-cut} graph which can be inferred
+efficiently using \emph{graph-cuts}~\cite{Boykov:ICCV01}
+algorithm. This gives some insights to their second contribution.
+
+To optimize the performance, a two-step learning algorithm is
+used. The algorithm first re-assign GMMs components ($\bk$) to
+each pixel then update parameters $\btheta$ with new assignments.
+The result of the trained GMMs are used directly into
+\emph{graph-cuts} algorithm~\ref{alg:grabcut} as unary terms.
+Finally the label $\alpha_i$ for each pixel $i$ is inferred
+jointly using \emph{graph-cuts} algorithm. This whole procedure
+is repeated until convergence (or reaches termination
+conditions). We briefly summarized this procedure in
+\algref{alg:grabcut}
+
+In this thesis we use GMMs trained by GrabCut algorithm for our
+unary terms $\phi^U$ in equation~\eqref{eq:energyfunction_UP}.
+
+The pairwise function $\phi^P$ in our energy
+function~\eqref{eq:energyfunction_UP} is defined as a Potts
+model:
+
+\begin{align}
+  \label{eq:energyfunction_pairwise}
+  \phi^P(\by_i,\by_j)=
+  \begin{cases}
+    0 & \text{if} x_i = x_j \\
+    \psi^P_{ij}(y_i, y_j) = \frac{\lambda}{d_{ij}} \ind{y_i \neq
+      y_j} \exp\left\{- \frac{\|x_i - x_j\|^2}{2 \beta}\right\} &
+    \text{otherwise}
+  \end{cases}
+\end{align}
+
+\noindent where $d_{ij}$ is the graph distance between stocks $i$
+and $j$. $x_i$ and $x_j$ are stock market price vectors.
 
 % %%% Local Variables:
 % %%% mode: latex

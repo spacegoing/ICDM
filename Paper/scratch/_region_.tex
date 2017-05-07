@@ -153,16 +153,15 @@ $y$~\cite{Szummer:ECCV08}:
 \text{,~} y\in \Y
 \end{align}
 
-We have introduced three main research topics of MRFs:
-definition of \emph{energy function} (potential functions),
-\emph{inference} problem (MAP or energy minimization) and
-\emph{learning} problem. As for energy function, our work focus
-on a class of higher-order potentials defined as a concave
-piecewise linear function which is known as lower linear envelope
-potentials over a clique of binary variables. It has been raising
-much interest due to its capability of encoding consistency
-constraints over large subsets of pixels in an
-image~\cite{Kohli:CVPR07,Nowozin:2011}.
+We have introduced three main research topics of MRFs: definition
+of \emph{energy function} (potential functions), \emph{inference}
+problem (MAP or energy minimization) and \emph{learning} problem.
+As for energy function, our work focus on a generalization of
+k-means clustering known as Gaussian Mixture Models to
+incorporate information about the covariance structure of the
+data as well as the centers of the latent Gaussians. It has been
+raising much interest due to its capability of encoding complex
+constraints over large subsets of pixels in an image.
 
 \citename{kohli2009robust} proposed a method to represent a class
 of higher order potentials with lower (upper) linear envelope
@@ -177,8 +176,9 @@ terms which can be solved with an efficient algorithm. They
 showed the energy function with auxiliary variables is submodular
 by transforming it into a quadratic pseudo-Boolean
 form~\cite{Boros:MATH02} and how
-\emph{graph-cuts}~\cite{Hammer:1965, Boykov:ICCV01, Freedman:CVPR05} like
-algorithm can be applied to do exact \emph{inference}.
+\emph{graph-cuts}~\cite{Hammer:1965, Boykov:ICCV01,
+  Freedman:CVPR05} like algorithm can be applied to do exact
+\emph{inference}.
 
 \citename{gouldlearning} solved \emph{learning} problem of lower
 linear envelope under the max margin
