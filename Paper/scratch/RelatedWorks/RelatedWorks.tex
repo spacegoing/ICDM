@@ -98,12 +98,48 @@ addressed to learn parameters of the energy function.
 \subsection{Construction of stocks relationship graph}
 \label{sec:con_stock_graph}
 
+The stock market is a complicated system with many variables
+affecting whether or not a particular stock price goes up or
+down. In order to accurately capture the complex relationships
+between companies that affect their stock prices, they can be
+represented as an undirected graph (MRFs). Each node in the graph
+corresponds to a single company and each edge represents
+collaboration between a pair of companies. This work uses the
+companies appearing in the information technology sector of the
+\emph{ HS300 } index. Because the relationship of collaborating
+companies is many-to-many, this would normally be an intractable
+problem if inference were determined using a message-passing
+algorithm (the complexity is exponential in the tree-width of the
+graph). Fortunately, the collaboration relationship is an
+associative one (i.e. if two companies are collaborators, an
+increase in the stock price of one of them is likely associated
+with an increase for the other; likewise, a decrease in the stock
+price of one of them is likely associated with a decrease for the
+other). As mentioned earlier, we are able to use minimum cuts to
+solve inference queries in polynomial time. Edges in the graph
+are determined by comparing the estimated result count in the
+\emph{ Sougo } search engine for the two queries:
 
+1.  “Company A”-“Company B” collaboration
+
+2.  “Company A”-“Company B” competition
+
+If the first query has more than 1.5 times the results of the
+second, an edge is added to the graph connecting the nodes for
+Company A and Company B. This multiplier is necessary to avoid
+adding edges between companies that are either not strong
+collaborators or competitors and thus have extremely similar
+result counts for both queries. Our spider code together with
+graph data are available on Github
+\url{https://github.com/spacegoing/sogou_spider}. The unary terms are
+measured using GMMs and pairwise terms are measured using Potts
+model, requiring the SSVM to learn the labelling from the feature
+vectors at the nodes.
 
 \subsection{Configuration of Energy Function}
 \label{sec:grabcut}
 
-\begin{figure}[t]
+\begin{figure}[b]
   \centering
   \includegraphics[width=1\linewidth]{RelatedWorks/figures/grabcut_task.png}
   \caption{\label{fig:grabcut_example} Picture on the left is
@@ -230,6 +266,98 @@ model:
 
 \noindent where $d_{ij}$ is the graph distance between stocks $i$
 and $j$. $x_i$ and $x_j$ are stock market price vectors.
+
+\subsection{Exact Inference}
+\label{sec:exact_inference}
+
+Exact inference on MRFs has been extensively studied in past
+years. Researchers found that, energy functions which can be
+transformed into quadratic pseudo-Boolean
+functions~\cite{Ishikawa:PAMI03,Ishikawa:CVPR09,Rother:CVPR09}
+are able to be minimized exactly using \emph{graph-cuts} like
+algorithms~\cite{Freedman:CVPR05,Hammer:1965} when they satisfy
+submodularity condition~\cite{Boros:MATH02}.
+\citename{Kohli:TR08} and \citename{Gould:ICML2011} adapted those
+results to perform exact inference on lower linear envelope
+potentials. In this section we mainly focus on describing the
+\emph{st min cut} graph constructed for energy function containing
+unary and pairwise potentials.
+
+Following the approach of \citename{Kohli:CVPR10},
+\citename{Gould:ICML2011,gouldlearning} transformed the MRFs into
+a quadratic pseudo-Boolean function by introducing $K-1$
+auxiliary variables $\bz = \left(z_1, \ldots, z_{K-1}\right)$
+with $z_k\in \{0,1\}$:
+
+\begin{align}
+  E^c(\by_c, \bz) = a_1 W_{\!c}(\by_c) + b_1
+  {}+ \sum_{k = 1}^{K-1} z_k \left( \left(a_{k+1} - a_k\right) W_{\!c}(\by_c) + b_{k+1} - b_k \right)
+  \label{eqn:binary_concave_z}
+\end{align}
+
+\noindent for a single clique $c \in \C$. Under this formulation,
+\citename{Gould:ICML2011,gouldlearning} showed that minimizing
+the pseudo-Boolean function over $\bz$ is equivalent to selecting
+(one of) the active functions(s) from equation. Another important
+property of optimized $\bz$ under this formulation is that it
+automatically satisfies the constraint~\cite{gouldlearning}:
+
+\begin{figure}[t]
+  \centering
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{cc}
+    \includegraphics[width=0.45\columnwidth]{Methodology/figures/stmincut}&
+                                                                         \includegraphics[width=0.5\columnwidth]{Methodology/figures/unary_pairwise.png}\\
+                                                                         {\small (a)} & {\small (b)} 
+  \end{tabular}
+  \caption{\label{fig:stmincut} $st$-graph
+    construction~\cite{gouldlearning} for
+    equation~\eqref{eqn:posiform}, unary and pairwise terms.
+    Every cut corresponds to an assignment to the random
+    variables, where variables associated with nodes in the
+    ${\cal S}$ set take the value one, and those associated with
+    nodes in the $\T$ set take the value zero. With slight abuse
+    of notation, we use the variables to denote nodes in our
+    graph.}
+\end{figure}
+
+\begin{align}
+  \label{eq:z_consecutive_constraint}
+  z_{k+1} \leq z_k
+\end{align}
+
+In order to construct the \emph{st-min-cut} graph,
+\citename{gouldlearning} rewrote
+equation~\eqref{eqn:binary_concave_z} into
+\emph{posiform}~\cite{Boros:MATH02}:
+
+\begin{align}
+  \label{eqn:posiform}  
+  E^c(\by_c, \bz)
+  &= b_1 - (a_1 - a_K) + \sum_{i \in c} a_1 w^c_i y_i
+  {}+ \sum_{k = 1}^{K - 1} \left( b_{k+1} - b_k \right) z_k\\
+  &+ \sum_{k = 1}^{K - 1} \left( a_k - a_{k+1} \right) \bar{z}_k
+  {}+ \sum_{k = 1}^{K - 1} \sum_{i \in c} \left( a_k - a_{k+1}
+    \right) w^c_i \bar{y}_i z_k \nonumber
+\end{align}
+
+\noindent where $\bar{z}_k = 1 - z_k$ and $\bar{y}_i = 1 - y_i$.
+$a_1$ is assumed to be greater than $0$ so that all coefficients
+are positive. After proving \emph{submodularity} of the energy
+function~\eqref{eqn:posiform}, \citename{gouldlearning}
+constructed the \emph{st-min-cut} graph based on
+equation~\eqref{eqn:posiform}.
+
+The construction is explained in \figref{fig:stmincut}. Figure
+(a) denotes construction for equation~\eqref{eqn:posiform}.
+Figure (b) denotes construction for unary and pairwise terms (see
+\cite{Kolmogorov:PAMI04}). For unary edges (4 edges on both
+sides), weights on each edge are corresponding to values in input
+unary terms accordingly. For pairwise edges (2 edges in the
+middle), both edges share the same weight which equals to the
+input pairwise term.
+
+
 
 % %%% Local Variables:
 % %%% mode: latex

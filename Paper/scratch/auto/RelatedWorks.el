@@ -18,6 +18,11 @@
     "eq:energyfunction_UP"
     "eq:grabcut_energy"
     "alg:grabcut"
-    "eq:energyfunction_pairwise"))
+    "eq:energyfunction_pairwise"
+    "sec:exact_inference"
+    "eqn:binary_concave_z"
+    "fig:stmincut"
+    "eq:z_consecutive_constraint"
+    "eqn:posiform"))
  :latex)
 

@@ -10,12 +10,13 @@
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (LaTeX-add-labels
     "cha:methodology"
-    "sec:inference"
-    "sec:exact_inference"
-    "eqn:binary_concave_z"
-    "fig:stmincut"
-    "eq:z_consecutive_constraint"
-    "eqn:posiform"
-    "sec:learning"))
+    "sec:learning"
+    "sec:ssvm"
+    "eq:ssvm"
+    "eq:ssvm_bound"
+    "eq:ssvm_objective"
+    "sec:large_margin"
+    "eqn:maxmarginqp"
+    "alg:learning"))
  :latex)
 

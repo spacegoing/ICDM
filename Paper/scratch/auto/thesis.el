@@ -16,6 +16,7 @@
     "latex2e"
     "RelatedWorks/RelatedWorks"
     "Methodology/Methodology"
+    "Experiments/Experiments"
     "book"
     "bk11"
     "StyFiles/anuthesis"
