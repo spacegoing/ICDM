@@ -9,7 +9,7 @@
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (LaTeX-add-labels
-    "cha:RelatedWorks"
+    "sec:RelatedWorks"
     "sec:MRF"
     "eq:energyfunction_UPH"
     "sec:con_stock_graph"

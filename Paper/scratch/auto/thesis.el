@@ -2,29 +2,24 @@
  "thesis"
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-class-options
-                     '(("book" "twoside" "doublespace" "onecolumn" "11pt" "a4paper")))
+                     '(("IEEEtran" "conference" "compsoc")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
-                     '(("StyFiles/anuthesis" "palatino") ("appendix" "toc" "page") ("StyFiles/natbib" "sort" "numbers") ("amsmath" "cmex10") ("caption" "font=small" "labelfont=bf") ("subfig" "font=footnotesize")))
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
+                     '(("StyFiles/natbib" "sort" "numbers") ("amsmath" "cmex10") ("caption" "font=small" "labelfont=bf") ("subfig" "font=footnotesize")))
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "path")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (TeX-run-style-hooks
     "latex2e"
     "RelatedWorks/RelatedWorks"
     "Methodology/Methodology"
     "Experiments/Experiments"
-    "book"
-    "bk11"
-    "StyFiles/anuthesis"
+    "IEEEtran"
+    "IEEEtran10"
     "graphicx"
-    "StyFiles/thesis"
-    "makeidx"
-    "appendix"
-    "StyFiles/fancyhdr"
     "StyFiles/natbib"
     "StyFiles/natbibspacing"
     "amsmath"
@@ -35,8 +30,7 @@
     "hyperref"
     "caption"
     "subfig"
-    "StyFiles/sg-macros"
-    "StyFiles/hyphenat")
+    "StyFiles/sg-macros")
    (TeX-add-symbols
     '("mmqp" 3)
     "theHalgorithm")

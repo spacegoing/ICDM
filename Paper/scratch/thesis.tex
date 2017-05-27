@@ -1,16 +1,19 @@
 %%
 %% Template thesis.tex
 %%
-\documentclass[twoside,doublespace,onecolumn,11pt,a4paper]{book}
-\usepackage[palatino]{StyFiles/anuthesis}
+
+% \documentclass[twoside,doublespace,onecolumn,11pt,a4paper]{book}
+% \usepackage[palatino]{StyFiles/anuthesis}
+% \usepackage{StyFiles/thesis}
+% \usepackage{makeidx}
+% \usepackage[toc,page]{appendix}
+% \usepackage{StyFiles/fancyhdr}
+
+\documentclass[conference,compsoc]{IEEEtran}
 \usepackage{graphicx}
-\usepackage{StyFiles/thesis}
-\usepackage{makeidx}
 % \usepackage{StyFiles/doublespace}
 
 % Chuck Added
-\usepackage[toc,page]{appendix}
-\usepackage{StyFiles/fancyhdr}
 % Gould Configurations
 
 % For figures
@@ -57,20 +60,21 @@
 
 \newcommand{\mmqp}[3]{\textrm{\sc MaxMarginQP}\!\left(\{\by_t, #1\}_{t=1}^{T}, #2, #3\right)}
 
-% correct bad hyphenation here
-\usepackage{StyFiles/hyphenat}
-\hyphenation{op-tical net-works semi-conduc-tor}
+% % correct bad hyphenation here
+% \usepackage{StyFiles/hyphenat}
+% \hyphenation{op-tical net-works semi-conduc-tor}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Preamble
-\title{Latent Structural SVM Learning for Lower Linear
-  Envelope Potentials in Binary Markov Random Fields}
-\author{Chang Li} \date{\today}
+% \title{Latent Structural SVM Learning for Lower Linear
+%   Envelope Potentials in Binary Markov Random Fields}
+% \author{Chang Li} \date{\today}
 
-\renewcommand{\thepage}{\roman{page}}
+% \renewcommand{\thepage}{\roman{page}}
 
-\makeindex
+% \makeindex
+
 \begin{document}
 
 % \pagenumbering{roman}  % first use Roman numerals for page numbers
@@ -112,8 +116,8 @@
 % \listoffigures
 % \listoftables
 
-\pagenumbering{arabic} % switch to Arabic numerals for page numbers
-\setcounter{page}{1}  % set page number to 1
+% \pagenumbering{arabic} % switch to Arabic numerals for page numbers
+% \setcounter{page}{1}  % set page number to 1
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,16 +126,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Here begins the main text
-\mainmatter
+% \mainmatter
 
 %% Introduction
 % \include{intro}
 
 %% Chapters
 % \include{RelatedWorks/Background}
-\include{RelatedWorks/RelatedWorks}
-\include{Methodology/Methodology}
-\include{Experiments/Experiments}
+\input RelatedWorks/RelatedWorks
+\input Methodology/Methodology
+\input Experiments/Experiments
 
 % %% Conclusion
 % \include{conclusion}
@@ -141,7 +145,7 @@
 
 %\include{FrontBackMISC/appendix}
 
-\backmatter
+% \backmatter
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Other options
@@ -150,7 +154,7 @@
 \bibliographystyle{abbrvnat}
 \bibliography{Bibs/thesis,Bibs/long,Bibs/scene}
 
-\printindex
+% \printindex
 
 \end{document}
 

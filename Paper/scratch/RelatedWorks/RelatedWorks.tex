@@ -2,10 +2,11 @@
 %% 
 %% 
 
-\chapter{Related Work and Background}
-\label{cha:RelatedWorks}
+% \chapter{Related Work and Background}
+% \label{cha:RelatedWorks}
 
-\section{MRFs and Energy Function}
+\section{Related Work and Background}
+\label{sec:RelatedWorks}
 \subsection{Markov Random Fields}
 \label{sec:MRF}
 \emph{Markov Random Fields} are also known as \emph{undirected
@@ -47,9 +48,9 @@ a set linear combinations of weights and feature vectors:
 
 \begin{align}
   \label{eq:energyfunction_UPH}
-  E(\by;\bw)=\sum_{i\in \N}{\bw_i^U\phi^U(\by_i)}+
-  \sum_{(i,j)\in \E}{\bw_{ij}^P\phi^P(\by_i,\by_j)}+
-  \sum_{\by_C\in \C}{\bw_C^H\phi^H(\by_C)}
+  E(\by;\bw)=&\sum_{i\in \N}{\bw_i^U\phi^U(\by_i)}+
+               \sum_{(i,j)\in \E}{\bw_{ij}^P\phi^P(\by_i,\by_j)} \notag \\
+               &+\sum_{\by_C\in \C}{\bw_C^H\phi^H(\by_C)}
 \end{align}
 
 \noindent where $U$ denotes \emph{unary} terms, $P$ denotes
