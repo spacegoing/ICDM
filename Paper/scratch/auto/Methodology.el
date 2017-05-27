@@ -10,12 +10,7 @@
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (LaTeX-add-labels
     "sec:learning"
-    "sec:ssvm"
-    "eq:ssvm"
-    "eq:ssvm_bound"
     "eq:ssvm_objective"
-    "sec:large_margin"
-    "eqn:maxmarginqp"
     "alg:learning"))
  :latex)
 

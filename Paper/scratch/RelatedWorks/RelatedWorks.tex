@@ -96,7 +96,11 @@ graph-cut~\cite{Boykov:ICCV99, Boykov:PAMI04} algorithm and the
 max margin framework~\cite{tsochantaridis2005large} has been
 addressed to learn parameters of the energy function.
 
-\subsection{Construction of stocks relationship graph}
+\section{Energy function and exact inference}
+\label{sec:energy_and_inference}
+
+
+\subsection{Construction of MRF (stocks' relationship) graph}
 \label{sec:con_stock_graph}
 
 The stock market is a complicated system with many variables
@@ -152,7 +156,7 @@ vectors at the nodes.
 
 In this section we described the configuration of our energy
 function. We mainly introduce the \emph{GrabCut} algorithm which
-we used to generate our unary terms. The \emph{Potts model} is
+we use to generate our unary terms. The \emph{Potts model} is
 used as our pairwise terms. Thus our energy function can be
 written as:
 \begin{align}
@@ -169,13 +173,15 @@ foreground segmentation problem (see
 figure~\ref{fig:grabcut_example}). They first defined MRFs over
 an labeled image and then use
 \emph{graph-cuts}~\cite{Boykov:ICCV01} method to do the
-inference. In this section we use two of their contributions:
-estimating color distribution (foreground and background) using
-\emph{Gaussian Mixture Models} (GMMs) and an \emph{EM} like
-two-step algorithm to train their model.
+inference. The equivalence of the labeled image in our work is
+the stocks relation graph described in
+section~\ref{sec:con_stock_graph}. We use two of their
+contributions: estimating color distribution (foreground and
+background) using \emph{Gaussian Mixture Models} (GMMs) and an
+\emph{EM} like two-step algorithm to train their model.
 
-Suppose there are $N$ pixels in an image. In order to construct
-MRFs, they first defined an energy
+Suppose there are $N$ stocks in our stocks graph. In order to
+construct MRFs, we first defined an energy
 function~\eqref{eq:energyfunction_UPH} with unary and pairwise
 terms:
 
@@ -188,8 +194,7 @@ terms:
 where $i$ is the index of pixels, $\alpha \in {0,1}$ is the label
 for pixel $i$. $0$ is for the background and $1$ is for the
 foreground. $\bz$ denotes the pixel vector in RGB color space.
-$\bk$ and $\btheta$ are all parameters vectors and will be
-explained in the next paragraph. 
+$\bk$ and $\btheta$ are all parameters vectors.
 
 \begin{algorithm}[tb]
   \begin{algorithmic}[1]
@@ -206,14 +211,30 @@ explained in the next paragraph.
   \caption{\label{alg:grabcut} GrabCut training algorithm}
 \end{algorithm}
 
-In our configuration, we use the graph described
-in~\ref{sec:con_stock_graph} in replacement of the image. Each
-node in the graph represents a stock instead of pixel and the
-edge between stocks represents their pairwise relationship. The
-label $\alpha \in {0,1}$ equals $1$ when the stock price has a
-positive movement, and vice versa. $\bz$ denotes the stock's
-market price vector instead of pixel's RGB value. Other
-parameters are the same with their configurations.
+In our configuration, we use the graph described in
+section~\ref{sec:con_stock_graph} in replacement of the image.
+Each node in the graph represents a stock instead of pixel and
+the edge between stocks represents their pairwise relationship.
+The label $\alpha \in {0,1}$ equals $1$ when the stock price has
+a positive movement, and vice versa. $\bz$ denotes the stock's
+market price vector instead of pixel's RGB value
+
+\begin{align}
+  \label{eq:feature_vector}
+  \bz =
+  \begin{bmatrix}
+    \text{open} \\
+    \text{high} \\
+    \text{low} \\
+    \text{close} \\
+    \text{volume} \\
+    \text{macd}_5 \\
+    \text{macd}_{10} \\
+    \text{kdj}_9
+  \end{bmatrix}
+\end{align}
+
+\noindent Other parameters are the same with their configurations.
 
 The \emph{Gaussian Mixture Models} (GMMs) with $K$ components
 (typically $K=5$) is used for generating unary terms. Two GMMs,
@@ -231,10 +252,10 @@ The pairwise function $\psi^P$ in \eqref{eq:grabcut_energy} is
 defined as a smoothness indicator which measures both feature
 vector (stock price vector) and spatial distances (graph
 distances) simultaneously. It is used to encourage coherence of
-similar pixel pairs. This energy function was later used to
-construct an \emph{st min-cut} graph which can be inferred
-efficiently using \emph{graph-cuts}~\cite{Boykov:ICCV01}
-algorithm. This gives some insights to their second contribution.
+similar pixel pairs. Energy function~\eqref{eq:grabcut_energy}
+was later used to construct an \emph{st min-cut} graph which can
+be inferred efficiently using
+\emph{graph-cuts}~\cite{Boykov:ICCV01} algorithm.
 
 To optimize the performance, a two-step learning algorithm is
 used. The algorithm first re-assign GMMs components ($\bk$) to
@@ -247,26 +268,31 @@ is repeated until convergence (or reaches termination
 conditions). We briefly summarized this procedure in
 \algref{alg:grabcut}
 
-In this thesis we use GMMs trained by GrabCut algorithm for our
+In this paper we use GMMs trained by GrabCut algorithm for our
 unary terms $\phi^U$ in equation~\eqref{eq:energyfunction_UP}.
 
-The pairwise function $\phi^P$ in our energy
-function~\eqref{eq:energyfunction_UP} is defined as a Potts
-model:
+A Potts model is defined as
+\begin{align}
+  \label{eq:potts}
+  \psi^P_{ij}(y_i, y_j) = \frac{\lambda}{d_{ij}} \ind{y_i \neq
+      y_j} \exp\left\{- \frac{\|x_i - x_j\|^2}{2 \beta}\right\}
+\end{align}
+
+\noindent where $d_{ij}$ is the graph distance between stocks $i$
+and $j$. $x_i$ and $x_j$ are stock market price vectors. The
+pairwise function $\phi^P$ in our energy
+function~\eqref{eq:energyfunction_UP} becomes
 
 \begin{align}
   \label{eq:energyfunction_pairwise}
   \phi^P(\by_i,\by_j)=
   \begin{cases}
-    0 & \text{if} x_i = x_j \\
-    \psi^P_{ij}(y_i, y_j) = \frac{\lambda}{d_{ij}} \ind{y_i \neq
-      y_j} \exp\left\{- \frac{\|x_i - x_j\|^2}{2 \beta}\right\} &
+    0 & \text{if } i = j \\
+    \psi^P_{ij}(y_i, y_j) &
     \text{otherwise}
   \end{cases}
 \end{align}
 
-\noindent where $d_{ij}$ is the graph distance between stocks $i$
-and $j$. $x_i$ and $x_j$ are stock market price vectors.
 
 \subsection{Exact Inference}
 \label{sec:exact_inference}
@@ -277,86 +303,29 @@ transformed into quadratic pseudo-Boolean
 functions~\cite{Ishikawa:PAMI03,Ishikawa:CVPR09,Rother:CVPR09}
 are able to be minimized exactly using \emph{graph-cuts} like
 algorithms~\cite{Freedman:CVPR05,Hammer:1965} when they satisfy
-submodularity condition~\cite{Boros:MATH02}.
-\citename{Kohli:TR08} and \citename{Gould:ICML2011} adapted those
-results to perform exact inference on lower linear envelope
-potentials. In this section we mainly focus on describing the
-\emph{st min cut} graph constructed for energy function containing
-unary and pairwise potentials.
-
-Following the approach of \citename{Kohli:CVPR10},
-\citename{Gould:ICML2011,gouldlearning} transformed the MRFs into
-a quadratic pseudo-Boolean function by introducing $K-1$
-auxiliary variables $\bz = \left(z_1, \ldots, z_{K-1}\right)$
-with $z_k\in \{0,1\}$:
-
-\begin{align}
-  E^c(\by_c, \bz) = a_1 W_{\!c}(\by_c) + b_1
-  {}+ \sum_{k = 1}^{K-1} z_k \left( \left(a_{k+1} - a_k\right) W_{\!c}(\by_c) + b_{k+1} - b_k \right)
-  \label{eqn:binary_concave_z}
-\end{align}
-
-\noindent for a single clique $c \in \C$. Under this formulation,
-\citename{Gould:ICML2011,gouldlearning} showed that minimizing
-the pseudo-Boolean function over $\bz$ is equivalent to selecting
-(one of) the active functions(s) from equation. Another important
-property of optimized $\bz$ under this formulation is that it
-automatically satisfies the constraint~\cite{gouldlearning}:
+submodularity condition~\cite{Boros:MATH02}. We mainly focus on
+describing the \emph{st-min-cut} graph constructed for energy
+function containing unary and pairwise potentials.
 
 \begin{figure}[t]
   \centering
-  \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{cc}
-    \includegraphics[width=0.45\columnwidth]{Methodology/figures/stmincut}&
-                                                                         \includegraphics[width=0.5\columnwidth]{Methodology/figures/unary_pairwise.png}\\
-                                                                         {\small (a)} & {\small (b)} 
-  \end{tabular}
+    \includegraphics[width=0.5\columnwidth]{Methodology/figures/unary_pairwise.png}\\
   \caption{\label{fig:stmincut} $st$-graph
-    construction~\cite{gouldlearning} for
-    equation~\eqref{eqn:posiform}, unary and pairwise terms.
-    Every cut corresponds to an assignment to the random
-    variables, where variables associated with nodes in the
-    ${\cal S}$ set take the value one, and those associated with
-    nodes in the $\T$ set take the value zero. With slight abuse
-    of notation, we use the variables to denote nodes in our
-    graph.}
+    construction~\cite{gouldlearning} for unary and pairwise
+    terms.}
 \end{figure}
 
-\begin{align}
-  \label{eq:z_consecutive_constraint}
-  z_{k+1} \leq z_k
-\end{align}
-
-In order to construct the \emph{st-min-cut} graph,
-\citename{gouldlearning} rewrote
-equation~\eqref{eqn:binary_concave_z} into
-\emph{posiform}~\cite{Boros:MATH02}:
-
-\begin{align}
-  \label{eqn:posiform}  
-  E^c(\by_c, \bz)
-  &= b_1 - (a_1 - a_K) + \sum_{i \in c} a_1 w^c_i y_i
-  {}+ \sum_{k = 1}^{K - 1} \left( b_{k+1} - b_k \right) z_k\\
-  &+ \sum_{k = 1}^{K - 1} \left( a_k - a_{k+1} \right) \bar{z}_k
-  {}+ \sum_{k = 1}^{K - 1} \sum_{i \in c} \left( a_k - a_{k+1}
-    \right) w^c_i \bar{y}_i z_k \nonumber
-\end{align}
-
-\noindent where $\bar{z}_k = 1 - z_k$ and $\bar{y}_i = 1 - y_i$.
-$a_1$ is assumed to be greater than $0$ so that all coefficients
-are positive. After proving \emph{submodularity} of the energy
-function~\eqref{eqn:posiform}, \citename{gouldlearning}
-constructed the \emph{st-min-cut} graph based on
-equation~\eqref{eqn:posiform}.
-
-The construction is explained in \figref{fig:stmincut}. Figure
-(a) denotes construction for equation~\eqref{eqn:posiform}.
-Figure (b) denotes construction for unary and pairwise terms (see
+The construction is explained in \figref{fig:stmincut}. It
+denotes construction for unary and pairwise terms (see
 \cite{Kolmogorov:PAMI04}). For unary edges (4 edges on both
 sides), weights on each edge are corresponding to values in input
 unary terms accordingly. For pairwise edges (2 edges in the
 middle), both edges share the same weight which equals to the
-input pairwise term.
+input pairwise term. Every cut corresponds to an assignment to
+the random variables, where variables associated with nodes in
+the ${\cal S}$ set take the value one, and those associated with
+nodes in the $\T$ set take the value zero. With slight abuse of
+notation, we use the variables to denote nodes in our graph.
 
 
 

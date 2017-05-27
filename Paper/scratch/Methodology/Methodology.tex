@@ -8,9 +8,6 @@
 \section{Learning the MRFs}
 \label{sec:learning}
 
-\subsection{Structural SVMs}
-\label{sec:ssvm}
-
 Traditional Support Vector Machines (SVMs) is used to solve
 binary classification problem. \citename{crammer2002algorithmic}
 extended SVM into multiclass classifier by generalizing the
@@ -18,23 +15,7 @@ concept of \emph{margin} to measure multiclass distances and a
 quadratic objective function was constructed. To approach
 structural prediction \citename{tsochantaridis2005large} extends
 their approach by specifying discriminant functions that exploit
-the structure and dependencies within label space $\Y$. In this
-section we briefly summarize their work.
-
-Suppose we are given a training set of input-output structure
-pairs $S=\{(x_1,y_1),...,(x_n,y_n)\}\in(\X\times \Y)^n$ . We want
-to learn a linear prediction rule of the form
-\begin{align}
-  \label{eq:ssvm}
-  f_w(x)=\argmax_{ y\in \Y } [\bw\cdot\phi(x,y)]
-\end{align}
-
-
-where $\phi$ is a joint feature vector that describes the
-relationship between input $x$ and structured output $y$, with
-$\bw$ being the parameter vector. The optimization problem of
-computing this argmax is typically referred to as the \emph{
-  inference } problem.
+the structure and dependencies within label space $\Y$.
 
 When training Structural SVMs, the parameter vector $\bw$ is
 determined by minimizing the (regularized) risk on the training
@@ -46,78 +27,41 @@ and there are usually exponentially many possible structures
 $\hat{y}$ in the output space $\Y$. The Structural SVM
 formulation\cite{tsochantaridis2005large} overcomes these
 difficulties by replacing the loss function $\Delta$ with a
-piecewise linear convex upper bound (margin rescaling)
-
-\begin{align}
-  \label{eq:ssvm_bound}
-  \Delta(y_i,\hat{ y_i }(\bw))\leq max_{\hat{y}\in\Y}\bigg[\Delta(y_i,\hat{ y })+\bw\cdot\phi(x_i,\hat{y})\bigg]-\bw\cdot\phi(x_i,y_i)
-\end{align}
-\noindent where $\hat{y}_i(\bw)=\argmax_{y\in\Y}\bw\cdot\phi(x_i,y)$.
-
-To train Structural SVMs we then solve the following convex
-optimization problem
+piecewise linear convex upper bound (margin rescaling). To train
+Structural SVMs we then solve the following convex optimization
+problem
 
 \begin{align}
   \label{eq:ssvm_objective}
-  min_{\bw}\frac{1}{2}||\bw||^2+\C\sum_{i=1}^{n}\bigg[max_{\hat{y}\in\Y}\big[\Delta(y_i,\hat{ y })+\bw\cdot\phi(x_i,\hat{y})\big]-\bw\cdot\phi(x_i,y_i)\bigg]
+  min_{\bw} \frac{1}{2}||\bw||^2+\C\sum_{i=1}^{n}\bigg[& max_{\hat{y}\in\Y}\big[\Delta(y_i,\hat{ y })+\bw\cdot\phi(x_i,\hat{y})\big]\notag \\
+  & -\bw\cdot\phi(x_i,y_i)\bigg]
 \end{align}
 
 Despite the typically exponential size of $\Y$, this optimization
 problem can be solved efficiently using cutting-plane or
-stochastic gradient methods. Structural SVMs give excellent
-performance on many structured prediction tasks, especially when
-the model $\phi$ is high-dimensional and it is necessary to
-optimize to non-standard loss functions $\Delta$.
+stochastic gradient methods.
 
-\subsection{Learning under the large margin framework}
-\label{sec:large_margin}
+Let $\Y_t = \{0, 1\}^n$ be the set of all possible assignments
+for the $t$-th training example. The (margin-rescaling)
+max-margin approach formulates learning as a quadratic
+programming optimization problem. Let
 
-We now show how the max-margin framework can be used to learn
-parameters of our MRFs. We begin by reviewing a variant of the
-max-margin framework introduced by
-\citename{Tsochantaridis:ICML04} and \citename{Taskar:ICML05}.
+\begin{align*}
+  \delta\phi_t(\by) \triangleq & \text{ }max_{\by\in\Y}\big[\Delta(\by_t,\by)+\bw\cdot\phi(x_t,\by)\big] \\
+  & -\bw\cdot\phi(x_t,\by_t)
+\end{align*}
 
-Given an energy function $\energy{\by; \btheta} = \btheta^T \!
-\phi(\by)$ parameterized as a linear combination of features
-$\phi(\by) \in \reals^m$ and weights $\btheta \in \reals^m$, and
-a set of $T$ training examples $\{\by_t\}_{t=1}^T$ the max-margin
-framework is a principled approach to learning the weights of the
-model.
-
-In our formulation we will allow additional linear constraints to be
-imposed on the weights of the form $\bG \btheta \geq \bh$, where $\bG
-\in \reals^{d \times m}$ and $\bh \in \reals^d$. This is not typically
-necessary for max-margin learning, but, as we will see below, is
-required for enforcing concavity when learning lower linear envelope
-potentials.
-
-Now, let $\Y_t = \{0, 1\}^n$ be the set of all possible assignments
-for the $t$-th training example. The (margin-rescaling) max-margin
-approach formulates learning as a quadratic programming optimization
-problem, $\mmqp{\Y_t}{\bG}{\bh}$:
-%
-\begin{align}
-  & \textrm{minimize} \quad \textstyle \frac{1}{2} \|\btheta\|^2 + \frac{C}{T} \sum_{t=1}^{T} \xi_t
-  \label{eqn:maxmarginqp} \\
-  & \textrm{subject to} \notag \\
-  & \begin{array}{lll}
-    & \btheta^T \delta\phi_t(\by) + \xi_t \geq \Delta(\by, \by_t), & \forall t, \by \!\in\! \Y_t, \\
-    & \xi_t \geq 0, & \forall t, \\
-    & \bG \btheta \geq \bh
-  \end{array} \notag
-\end{align}
-%
-where $\delta\phi_t(\by) \triangleq \left(\phi_t(\by) -
-\phi_t(\by_t)\right)$ is the difference between feature
-representations for some assignment $\by$ and the $t$-th ground-truth
-assignment $\by_t$, $C > 0$ is a regularization constant, and
-$\Delta(\by, \by_t)$ measures the loss between a ground-truth
-assignment $\by_t$ and any other assignment. In our work we use the
-Hamming loss, which measures the proportion of variables whose
-corresponding assignments disagree. More formally, the Hamming loss is
-defined as $\Delta(\by, \by') = \frac{1}{n} \sum_{i=1}^{n} \ind{y_i
-  \neq y'_i}$, where $\ind{P}$ is the indicator function taking value
-one when $P$ is true and zero otherwise.
+\noindent be the difference between feature representations for
+some assignment $\by$ and the $t$-th ground-truth assignment
+$\by_t$, $C > 0$ is a regularization constant, and $\Delta(\by,
+\by_t)$ measures the loss between a ground-truth assignment
+$\by_t$ and any other assignment. In our work we use the Hamming
+loss, which measures the proportion of variables whose
+corresponding assignments disagree. More formally, the Hamming
+loss is defined as $\Delta(\by, \by') = \frac{1}{n}
+\sum_{i=1}^{n} \ind{y_i \neq y'_i}$, where $\ind{P}$ is the
+indicator function taking value one when $P$ is true and zero
+otherwise.
 
 \begin{algorithm}[tb]
   \begin{algorithmic}[1]
@@ -143,43 +87,16 @@ one when $P$ is true and zero otherwise.
   \caption{\label{alg:learning} Learning lower linear envelope MRFs.}
 \end{algorithm}
 
-The number of constraints in the QP is exponential in the number of
-variables, and a standard approach to solving the max-margin QP is by
-adding constraints incrementally. Briefly, at each iteration the
-algorithm checks for the most violated constraint (for each training
-example), using \emph{loss-augmented inference}, and, if found, adds
-it to the constraint set. The algorithm terminates when no more
-violated constraints are found (see \algref{alg:learning}).
-
-Note that while we use the Hamming loss in this work, the loss
-function $\Delta(\by, \by_t)$ in \eqnref{eqn:maxmarginqp} can be more
-general. For example, \citet{Pletscher:AISTATS12} recently showed that
-certain higher-order losses can be reduced to binary pairwise
-supermodular functions. In this way the loss function factors over the
-same terms as in the energy function with the addition of auxiliary
-variables. Since the loss function is subtracted from the energy
-function during loss-augmented inference, the supermodular loss
-becomes a submodular objective and therefore admits tractable
-minimization.
-
-Our test for the most violated constraints (lines 7 and 8) can be
-performed exactly ($\Delta(\by, \by_t)$ decomposes as a sum of
-unary terms). If the test succeeds, then $\by_t^\star$ cannot
-already be in $\A_t$. It is now added (line 9). Since there are
-only finitely many constraints, this happens at most $2^n - 1$
-times (per training example), and the algorithm must eventually
-terminate. On termination there are no more violated constraints,
-hence the parameters are optimal.
-
-Unfortunately, as our proof suggests, it may take exponential
-time for the algorithm to reach convergence with $\epsilon = 0$.
-\citename{Tsochantaridis:JMLR05} showed, however, that for
-$\epsilon > 0$ and no additional linear constraints (\ie $\bG =
-\zeros$, $\bh = \zeros$) max-margin learning within a dual
-optimization framework will terminate in a polynomial number of
-iterations. Their result can be extended to the case of
-additional linear constraints.
-
+The number of constraints in the Quadratic Programming problem is
+exponential in the number of variables, and a standard approach
+to solving the max-margin QP is the cutting-plane algorithm.
+Briefly, at each iteration the algorithm checks for the most
+violated constraint. If found, it will be added into the
+constraint set. The algorithm terminates when no more violated
+constraints are found (see \algref{alg:learning}). Since the loss
+function is subtracted from the energy function during
+loss-augmented inference, the supermodular loss becomes a
+submodular objective and therefore admits tractable minimization.
 
 
 % % \clearpage
