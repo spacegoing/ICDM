@@ -20,6 +20,11 @@
     "li2013exploring"
     "achanta2012slic"
     "kohli2007p3"
-    "bishop:2006:PRML"))
+    "bishop:2006:PRML"
+    "hsu2011hybrid"
+    "fasanghari2010design"
+    "cremers2009active"
+    "leung2013discovering"
+    "mackinnon2015stock"))
  :bibtex)
 

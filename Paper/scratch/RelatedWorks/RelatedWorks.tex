@@ -5,6 +5,78 @@
 % \chapter{Related Work and Background}
 % \label{cha:RelatedWorks}
 
+\section{Introduction}
+\label{sec:intro}
+
+Quantitative trading algorithms using machine learning and data
+mining technologies have been raising much interest these years
+\cite{fasanghari2010design,cremers2009active,hsu2011hybrid,leung2013discovering}.
+Machine learning algorithms leveraging Big Data and novel
+hardware can form the basis for effective stock price movement
+reasoning and artificial intelligent trading decision making.
+This gives traders a wild range of new insights and opportunities
+to combine prior knowledge of financial market with non-observable
+information into trading strategies.
+
+Price movement prediction is an extremely difficult optimization
+and mathematical modeling problem regarding its basis in
+stochastic movements and complex dynamic system.
+
+--- Revision Needed ---
+
+A recent statistic showed that from 2008 to 2012, only $9.84\%$
+of Canadian equity fund managers achieved better returns than
+passively managed funds based on the S\&P/TSX Composite Index.
+That means that more than $90\%$ of the time, funds in which
+stocks were actively selected by fund managers performed worse
+than the market as a whole. Clearly, there is room for
+improvement in this area.
+
+Algorithms that can accurately forecast stock price movements
+have a huge financial incentive for whoever has access to them.
+Aside from the potential for creating multi-millionaires, such an
+algorithm would have secondary benefits as well. One possibility
+would be early identification of investments that are destined to
+fail, reducing the chance of major disruptions and market crashes
+when they do. Another possibility is that a successful algorithm
+could be adapted to other domains with similar problem
+requirements. We previously conducted a feasibility study
+\cite{mackinnon2015stock} to explore the possibility of using
+machine learning approaches for stock price prediction.
+
+--- Revision Needed ---
+
+
+
+In this paper, we apply data mining and machine learning
+techniques on business intelligence data consisting of
+fundamental financial information to develop a model for the
+business analytics problem of predicting positive or negative
+movement in stock prices. To perform classification on complex
+inputs such as financial data that are modelled in terms of nodes
+in a graph structure, we use a structural support vector machine
+(SSVM) together with a minimum graph-cut approach.
+
+Key contributions in this paper are: (i) a new application of
+SSVM and minimum graph-cuts to stock price prediction using
+fundamental analysis, and (ii) the ability to consider the
+relationships between collaborating companies in the prediction
+model.
+
+The remainder of this paper is organized as follows. The next
+section discusses related work covering different approaches to
+stock price prediction and recent advances in the field. The
+requisite machine learning background on SVMs and SSVMs follows.
+The following section outlines the integration of the SSVM and
+minimum graph-cut algorithms. Next, the graph structure, feature
+vectors, and training labels are described. Finally, experimental
+results show the accuracy of the prediction model and the benefit
+of capturing the collaborating information over a regular SVM. A
+real-world market evaluation is also conducted showing a
+favorable comparison of the return on investment when using the
+model as opposed to just tracking the S\&P 500-45 index.
+
+
 \section{Related Work and Background}
 \label{sec:RelatedWorks}
 \subsection{Markov Random Fields}
@@ -36,7 +108,8 @@ arbitrary functions. Therefore, \emph{maximum a posteriori}
 problem is equivalent to \emph{energy minimization} problem,
 which is also known as \emph{inference}:
 \begin{align}
-  \by^*=\argmax_{\by}p(\by)=\argmin_{\by}(-\sum_{C}{E_C(\by_C)})
+  \by^*& =\argmax_{\by}p(\by)=\argmax_{\by}\big(exp(-\sum_{C}{E_C(\by_C)})\big)\notag
+  \\&=\argmin_{\by}(\sum_{C}{E_C(\by_C)})
 \end{align}
 To optimize the performance we can also consider a weighted
 version of energy functions. In order to do this we can decompose
@@ -103,43 +176,43 @@ addressed to learn parameters of the energy function.
 \subsection{Construction of MRF (stocks' relationship) graph}
 \label{sec:con_stock_graph}
 
-The stock market is a complicated system with many variables
-affecting whether or not a particular stock price goes up or
-down. In order to accurately capture the complex relationships
-between companies that affect their stock prices, they can be
-represented as an undirected graph (MRFs). Each node in the graph
-corresponds to a single company and each edge represents
-collaboration between a pair of companies. This work uses the
-companies appearing in the information technology sector of the
-\emph{ HS300 } index. Because the relationship of collaborating
-companies is many-to-many, this would normally be an intractable
-problem if inference were determined using a message-passing
-algorithm (the complexity is exponential in the tree-width of the
-graph). Fortunately, the collaboration relationship is an
-associative one (i.e. if two companies are collaborators, an
-increase in the stock price of one of them is likely associated
-with an increase for the other; likewise, a decrease in the stock
-price of one of them is likely associated with a decrease for the
-other). As mentioned earlier, we are able to use minimum cuts to
-solve inference queries in polynomial time. Edges in the graph
-are determined by comparing the estimated result count in the
-\emph{ Sougo } search engine for the two queries:
+As a complex system, the stock market is full of abundant of
+variables which affect the value of shares to rise or fall.
+Specifically, if some companies collaborate in their business,
+their stock prices even will consistently fluctuate. To
+concretely capture such kind of relationship among different
+companies, we can unfold it with an undirected graph (MRFs). Each
+node in the graph represents a single company, and the edge
+between a pair of nodes implies that the two related companies
+work in close collaboration.
 
-1.  “Company A”-“Company B” collaboration
+In this paper, we will select the 300 stocks covered by SHANGHAI
+SHENZHEN 300 INDEX (CSI 300) as the experiment subjects (the data
+supplied by Wind Financial Terminal). Since collaboration exists
+among many corporations, if inference is decided by a
+message-passing algorithm (the complexity is exponential in the
+tree-width of the graph), the problem will become intractable. As
+mentioned above, we are capable of using minimum cuts to solve
+inference queries in polynomial time to figure out the
+collaboration and competition relationship among the 300
+companies through \emph{sougo.com} search engine:
 
-2.  “Company A”-“Company B” competition
+1. Company A-Company B collaboration
 
-If the first query has more than 1.5 times the results of the
-second, an edge is added to the graph connecting the nodes for
-Company A and Company B. This multiplier is necessary to avoid
-adding edges between companies that are either not strong
-collaborators or competitors and thus have extremely similar
-result counts for both queries. Our spider code together with
-graph data are available on Github
-\url{https://github.com/spacegoing/sogou_spider}. The unary terms are
-measured using GMMs and pairwise terms are measured using Potts
-model, requiring the SSVM to learn the labelling from the feature
-vectors at the nodes.
+2. Company A-Company B competition
+
+To reduce the probability of mistakes in falsely judging the
+relationship, we set a threshold value as 1.5: if the number of
+results searching with the first query is 1.5 times bigger than
+that with the second one, we assume that the collaboration exists
+between the company A and B. Correspondingly, an edge will be
+used to connect the related nodes in the MRFs. Our spider code
+and graph data are available on Github
+\url{https://github.com/spacegoing/sogou_spider}.
+
+The unary terms are measured using GMMs and pairwise terms are
+measured using Potts model, requiring the SSVM to learn the
+labeling from the feature vectors at the nodes.
 
 \subsection{Configuration of Energy Function}
 \label{sec:grabcut}

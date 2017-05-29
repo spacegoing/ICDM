@@ -9,6 +9,7 @@
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "path")
    (LaTeX-add-labels
+    "sec:intro"
     "sec:RelatedWorks"
     "sec:MRF"
     "eq:energyfunction_UPH"
