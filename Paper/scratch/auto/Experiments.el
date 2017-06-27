@@ -13,6 +13,8 @@
     "sec:exp_data"
     "sec:exp_compare"
     "tab:exp_compare"
-    "sec:exp_strategy"))
+    "sec:exp_strategy"
+    "sec:conclusion"
+    "fig:synthetic_weights"))
  :latex)
 
